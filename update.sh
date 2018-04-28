@@ -36,12 +36,12 @@ echo
 
 if [[ -d "$ZSH" ]]; then
   echo -e "\033[36m >>>>>>>>>>>>>> oh my zsh updating <<<<<<<<<<<<<< \033[0m"
-  upgrade_oh_my_zsh 
+  env ZSH=$ZSH sh $ZSH/tools/upgrade.sh
 fi
 
 if [[ $(which brew) ]]; then
   echo -e "\033[36m >>>>>>>>>>>>>> brew updating <<<<<<<<<<<<<< \033[0m"
-  brew update 
+  brew update
   echo -e "\033[36m >>>>>>>>>>>>>> brew upgrading <<<<<<<<<<<<<< \033[0m"
   brew upgrade
   brew cleanup
@@ -64,7 +64,7 @@ fi
 
 if [[ $(which gem) ]]; then
   echo -e "\033[36m >>>>>>>>>>>>>> update_rubygems <<<<<<<<<<<<<< \033[0m"
-  update_rubygems 
+  update_rubygems
   echo -e "\033[36m >>>>>>>>>>>>>> gem update system <<<<<<<<<<<<<< \033[0m"
   sudo gem update --system
   echo -e "\033[36m >>>>>>>>>>>>>> gem update <<<<<<<<<<<<<< \033[0m"
@@ -97,4 +97,3 @@ echo -e "\033[36m >>>>>>>>>>>>>> 成功关闭全局代理<<<<<<<<<<<<<< \033[0m"
 # fi
 
 echo -e "\033[36m >>>>>>>>>>>>>> 全部更新已完成 <<<<<<<<<<<<<< \033[0m"
-
