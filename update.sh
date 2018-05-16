@@ -22,15 +22,15 @@
 echo -e -n "\033[36m请输入管理员密码:\033[m"
 read -s INPUT_SUDO_PASSWORD
 echo
-echo -n $INPUT_SUOD_PASSWORD | sudo -S -v;
+echo $INPUT_SUDO_PASSWORD | sudo -S -v >/dev/null 2>&1;
 echo
 
-INPUT_PROXY_MODE='y'
+INPUT_PROXY_MODE='Y'
 INPUT_PROXY_ADDRESS="127.0.0.1:1087"
 IP_ADDRESS_REG='^(http\:\/\/|https\:\/\/)?((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\:([1-9][0-9]{0,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$'
 
 function openProxy() {
-  if [[ $INPUT_PROXY_MODE != "y" ]]; then
+  if [[ $INPUT_PROXY_MODE != "Y" ]]; then
     return
   fi
   if [[ $INPUT_PROXY_ADDRESS != http* ]]; then
@@ -41,11 +41,11 @@ function openProxy() {
   export ALL_PROXY=$INPUT_PROXY_ADDRESS
   git config --global http.proxy $INPUT_PROXY_ADDRESS
   git config --global https.proxy $INPUT_PROXY_ADDRESS
-  echo -e "\033[36m >>>>>>>>>>>>>> 成功开启全局代理<<<<<<<<<<<<<< \033[0m"
+  echo -e "\033[36m>>>>>>>>>>>>>> 成功开启全局代理<<<<<<<<<<<<<<\033[0m"
 }
 
 function closeProxy() {
-  if [[ $INPUT_PROXY_MODE != "y" ]]; then
+  if [[ $INPUT_PROXY_MODE != "Y" ]]; then
     return
   fi
   unset http_proxy
@@ -54,7 +54,7 @@ function closeProxy() {
   git config --global --unset http.proxy
   git config --global --unset https.proxy
   sed -i -e '/^\[http\]/d;/^\[https\]/d' ~/.gitconfig
-  echo -e "\033[36m >>>>>>>>>>>>>> 成功关闭全局代理<<<<<<<<<<<<<< \033[0m"
+  echo -e "\033[36m>>>>>>>>>>>>>> 成功关闭全局代理<<<<<<<<<<<<<<\033[0m"
 }
 
 
@@ -75,12 +75,13 @@ function startProxy() {
   echo -e -n "\033[36m是否开启代理模式?(y/n):\033[m"
   read INPUT_PROXY_MODE
   echo
-  if [ $INPUT_PROXY_MODE == "y" -o $INPUT_PROXY_MODE == "yes" -o $INPUT_PROXY_MODE == "Y" -o $INPUT_PROXY_MODE == "YES" ]; then
-      INPUT_PROXY_MODE="y"
+  INPUT_PROXY_MODE=$(echo $INPUT_PROXY_MODE | tr 'a-z' 'A-Z')
+  if [ $INPUT_PROXY_MODE == "Y" -o $INPUT_PROXY_MODE == "YES" ]; then
+      INPUT_PROXY_MODE="Y"
       getProxyAddress
       openProxy
-  elif [ $INPUT_PROXY_MODE == "n" -o $INPUT_PROXY_MODE == "no" -o $INPUT_PROXY_MODE == "N" -o $INPUT_PROXY_MODE == "NO" ]; then
-    INPUT_PROXY_MODE="n"
+  elif [ $INPUT_PROXY_MODE == "N" -o $INPUT_PROXY_MODE == "NO" ]; then
+    INPUT_PROXY_MODE="N"
     return
   else
     echo -e "\033[36m请输入 y(YES) or n(NO)\033[m"
@@ -91,45 +92,45 @@ function startProxy() {
 startProxy
 
 if [[ -d "$ZSH" ]]; then
-  echo -e "\033[36m >>>>>>>>>>>>>> oh my zsh updating <<<<<<<<<<<<<< \033[0m"
-  env ZSH=$ZSH sh $ZSH/tools/upgrade.sh
+  echo -e "\033[36m>>>>>>>>>>>>>> oh my zsh updating <<<<<<<<<<<<<<\033[0m"
+  env ZSH=$ZSH sh $ZSH/tools/upgrade.sh >/dev/null 2>&1
 fi
 
 if [[ $(which brew) ]]; then
-  echo -e "\033[36m >>>>>>>>>>>>>> brew updating <<<<<<<<<<<<<< \033[0m"
-  brew update
-  echo -e "\033[36m >>>>>>>>>>>>>> brew upgrading <<<<<<<<<<<<<< \033[0m"
-  brew upgrade
-  brew cleanup
-  echo -e "\033[36m >>>>>>>>>>>>>> brew cask upgrading <<<<<<<<<<<<<< \033[0m"
-  brew cask upgrade
-  brew cask cleanup
+  echo -e "\033[36m>>>>>>>>>>>>>> brew updating <<<<<<<<<<<<<<\033[0m"
+  brew update >/dev/null 2>&1
+  echo -e "\033[36m>>>>>>>>>>>>>> brew upgrading <<<<<<<<<<<<<<\033[0m"
+  brew upgrade >/dev/null 2>&1
+  brew cleanup >/dev/null 2>&1
+  echo -e "\033[36m>>>>>>>>>>>>>> brew cask upgrading <<<<<<<<<<<<<<\033[0m"
+  brew cask upgrade >/dev/null 2>&1
+  brew cask cleanup >/dev/null 2>&1
 fi
 
 if [[ $(which pip2) ]]; then
-  echo -e "\033[36m >>>>>>>>>>>>>> pip2 upgrading <<<<<<<<<<<<<< \033[0m"
-  sudo -H pip2 install --upgrade pip
-  sudo -H pip2 list --outdated --format=freeze | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 sudo -H pip2 install -U
+  echo -e "\033[36m>>>>>>>>>>>>>> pip2 upgrading <<<<<<<<<<<<<<\033[0m"
+  sudo -H pip2 install --upgrade pip >/dev/null 2>&1
+  sudo -H pip2 list --outdated --format=freeze >/dev/null 2>&1 | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 sudo -H pip2 install --no-cache-dir -U >/dev/null 2>&1
 fi
 
 if [[ $(which pip3) ]]; then
-  echo -e "\033[36m >>>>>>>>>>>>>> pip3 upgrading <<<<<<<<<<<<<< \033[0m"
-  sudo -H pip3 install --upgrade pip
-  sudo -H pip3 list --outdated --format=freeze | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 sudo -H pip3 install -U
+  echo -e "\033[36m>>>>>>>>>>>>>> pip3 upgrading <<<<<<<<<<<<<<\033[0m"
+  sudo -H pip3 install --upgrade pip >/dev/null 2>&1
+  sudo -H pip3 list --outdated --format=freeze >/dev/null 2>&1 | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 sudo -H pip3 install --no-cache-dir -U >/dev/null 2>&1
 fi
 
 if [[ $(which gem) ]]; then
-  echo -e "\033[36m >>>>>>>>>>>>>> update_rubygems <<<<<<<<<<<<<< \033[0m"
-  update_rubygems
-  echo -e "\033[36m >>>>>>>>>>>>>> gem update system <<<<<<<<<<<<<< \033[0m"
-  sudo gem update --system
-  echo -e "\033[36m >>>>>>>>>>>>>> gem update <<<<<<<<<<<<<< \033[0m"
-  sudo gem update
+  echo -e "\033[36m>>>>>>>>>>>>>> update_rubygems <<<<<<<<<<<<<<\033[0m"
+  update_rubygems >/dev/null 2>&1
+  echo -e "\033[36m>>>>>>>>>>>>>> gem update system <<<<<<<<<<<<<<\033[0m"
+  sudo gem update --system >/dev/null 2>&1
+  echo -e "\033[36m>>>>>>>>>>>>>> gem update <<<<<<<<<<<<<<\033[0m"
+  sudo gem update >/dev/null 2>&1
 fi
 
 if [[ $(which pod) ]]; then
-  echo -e "\033[36m >>>>>>>>>>>>>> updating pods <<<<<<<<<<<<<< \033[0m"
-  pod repo update
+  echo -e "\033[36m>>>>>>>>>>>>>> updating pods <<<<<<<<<<<<<<\033[0m"
+  pod repo update >/dev/null 2>&1
 fi
 
 closeProxy
@@ -144,4 +145,4 @@ closeProxy
 #   mas upgrade
 # fi
 
-echo -e "\033[36m >>>>>>>>>>>>>> 全部更新已完成 <<<<<<<<<<<<<< \033[0m"
+echo -e "\033[36m>>>>>>>>>>>>>> 全部更新已完成 <<<<<<<<<<<<<<\033[0m"

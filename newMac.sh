@@ -14,9 +14,9 @@ array_contains () {
 }
 
 echo -n "please input sudo password:"
-read -s INPUT_SUOD_PASSWORD
+read -s INPUT_SUDO_PASSWORD
 echo
-echo $INPUT_SUOD_PASSWORD | sudo -S -v
+echo $INPUT_SUDO_PASSWORD | sudo -S -v
 echo
 
 XCODE_PATH="/Applications/Xcode.app"
@@ -31,7 +31,7 @@ cd ~
 COMMANDLINETOOLS_PATH='/Library/Developer/CommandLineTools'
 if [[ ! -d "$COMMANDLINETOOLS_PATH" ]]; then
   echo -e "\033[36m >>>>>>>>>>>>>> 你需要安装 CommandlineTools 才能进行以下操作 <<<<<<<<<<<<<< \033[0m"
-  xcode-select --install >/dev/null 2>&1 
+  xcode-select --install >/dev/null 2>&1
   exit 1
 fi
 
@@ -40,7 +40,6 @@ echo -e "\033[36m >>>>>>>>>>>>>> xcode-select 已安装 <<<<<<<<<<<<<< \033[0m"
 
 if [[ ! $(which brew) ]]; then
   echo -e "\033[36m >>>>>>>>>>>>>> 开始安装 Homebrew <<<<<<<<<<<<<< \033[0m"
-  echo "Install Homebrew"
   /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 fi
 
@@ -191,9 +190,19 @@ done
 # 下载app软件  后续需要用户自行安装
 
 # 第三方软件待整理.....
+# 1, 官网下载
+# QQ, QQ音乐, fork, iterm2, sublime text, atom, dash, 有道云笔记, CleanMyMac, Alfred, Bartender3, Istat Menus, FileZilla, VMware Fusion
+# Google Chrome, ShadowsocksX-NG-R8, Cheatsheet, BetterZip, coconutBattery, postman, wireshark, Kaleidoscope, Genymotion(Virtoalbox), 网易MUMU
+# JetBrains (RubyMine, WebStorm, AppCode, CLion, GoLand, IntelliJ IDEA Ultimate, PhpStorm, PyCharm Professional)
+# 2, 第三方渠道
+# office
+# http://officecdn.microsoft.com/pr/C1297A47-86C4-4C1F-97FA-950631F94777/OfficeMac/Microsoft_Office_2016_Installer.pkg
+# charles
+# https://www.charlesproxy.com/assets/release/4.2.1/charles-proxy-4.2.1.dmg
 
-# appstore 
-# mas 在 mac high sierra 中 登录api 已经被删除 导致不可用 
+
+# appstore
+# mas 在 mac high sierra 中 登录api 已经被删除 导致不可用
 # 时刻关注 mas 最新进展 https://github.com/mas-cli/mas
 # 将来mas 可以使用的时候 放到 第一步 xcode 下载那里
 # app_store_apps=(WeChat Magnet 1Password Theine Irvue)
@@ -205,4 +214,3 @@ done
 #     mas install $value_number
 #   fi
 # done
-
