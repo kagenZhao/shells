@@ -13,8 +13,8 @@ LOCAL_ARR=($(echo $LOCAL | tr "\\n" $IFS))
 for value in ${LOCAL_ARR[@]};
 do
 cat <<EOF
-<item uid="localip_$LOCAL_RESULT_COUNT" arg="$value">
-<title>Local IP: $value</title>
+<item uid="localip$LOCAL_RESULT_COUNT" arg="$value">
+<title>Local IP$LOCAL_RESULT_COUNT: $value</title>
 <subtitle>Press Enter to paste, or Cmd+C to copy</subtitle>
 <icon>icon.png</icon>
 </item>
