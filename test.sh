@@ -1,32 +1,17 @@
-#!/usr/bin/env zsh
-
-LOCAL=$(ifconfig | grep -A 1 "en" | grep broadcast | cut -d " " -f 2)
-EXTERNAL=$(curl ip.cn | grep -i "ip" | cut -d " " -f 2 | cut -d "：" -f 2)
-
-cat <<EOF
-<?xml version="1.0"?>
-<items>
-EOF
-
-LOCAL_RESULT_COUNT=1
-LOCAL_ARR=($(echo $LOCAL | tr "\\n" $IFS))
-for value in ${LOCAL_ARR[@]};
-do
-cat <<EOF
-<item uid="localip_$LOCAL_RESULT_COUNT" arg="$value">
-<title>Local IP: $value</title>
-<subtitle>Press Enter to paste, or Cmd+C to copy</subtitle>
-<icon>icon.png</icon>
-</item>
-EOF
-    LOCAL_RESULT_COUNT=`expr $LOCAL_RESULT_COUNT + 1`
-done
-
-cat <<EOF
-<item uid="externalip" arg="$EXTERNAL">
-<title>External IP: $EXTERNAL</title>
-<subtitle>Press Enter to paste, or Cmd+C to copy</subtitle>
-<icon>icon.png</icon>
-</item>
-</items>
-EOF
+#!/usr/bin/env bash
+function startProxy() {
+  echo -e -n "\033[36m是否开启代理模式?(y/n):\033[m"
+  read INPUT_PROXY_MODE
+  echo $INPUT_PROXY_MODE
+  INPUT_PROXY_MODE=$(echo $INPUT_PROXY_MODE | tr 'a-z' 'A-Z')
+  if [ $INPUT_PROXY_MODE == "Y" -o $INPUT_PROXY_MODE == "YES" ]; then
+      INPUT_PROXY_MODE="Y"
+  elif [ $INPUT_PROXY_MODE == "N" -o $INPUT_PROXY_MODE == "NO" ]; then
+    INPUT_PROXY_MODE="N"
+    return
+  else
+    echo -e "\033[36m请输入 y(YES) or n(NO)\033[m"
+    startProxy
+  fi
+}
+startProxy

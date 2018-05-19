@@ -17,13 +17,13 @@
 # ${file%.*}：删掉最后一个  .  及其右边的字符串：/dir1/dir2/dir3/my.file
 # ${file%%.*}：删掉第一个  .   及其右边的字符串：/dir1/dir2/dir3/my
 
-# >/dev/null 2>&1 所有输出重定向到黑洞中
+#  所有输出重定向到黑洞中
 
 echo -e -n "\033[36m请输入管理员密码:\033[m"
 read -s INPUT_SUDO_PASSWORD
 echo
 echo $INPUT_SUDO_PASSWORD | sudo -S -v >/dev/null 2>&1;
-echo
+echo -e "\033[36m已输入管理员密码\033[m"
 
 INPUT_PROXY_MODE='Y'
 INPUT_PROXY_ADDRESS="127.0.0.1:1087"
@@ -61,27 +61,34 @@ function closeProxy() {
 function getProxyAddress() {
   echo -e -n "\033[36m请输入正确的HTTP代理IP及端口(只支持IP,默认为:127.0.0.1:1087):\033[m"
   read INPUT_PROXY_ADDRESS
-  echo
   if [ ! $INPUT_PROXY_ADDRESS ]; then
     INPUT_PROXY_ADDRESS="127.0.0.1:1087"
   elif [[ "$INPUT_PROXY_ADDRESS" =~ $IP_ADDRESS_REG ]]; then
     return
   else
+    echo -e "\033[36m请输入正确的代理地址\033[m"
     getProxyAddress
   fi
 }
 
 function startProxy() {
-  echo -e -n "\033[36m是否开启代理模式?(y/n):\033[m"
+  echo -e -n "\033[36m是否开启代理模式?(y/n,默认开启):\033[m"
   read INPUT_PROXY_MODE
-  echo
   INPUT_PROXY_MODE=$(echo $INPUT_PROXY_MODE | tr 'a-z' 'A-Z')
-  if [ $INPUT_PROXY_MODE == "Y" -o $INPUT_PROXY_MODE == "YES" ]; then
-      INPUT_PROXY_MODE="Y"
-      getProxyAddress
-      openProxy
+  if [ ! $INPUT_PROXY_MODE ]; then
+    INPUT_PROXY_MODE="Y"
+  elif [ $INPUT_PROXY_MODE == "Y" -o $INPUT_PROXY_MODE == "YES" ]; then
+    INPUT_PROXY_MODE="Y"
   elif [ $INPUT_PROXY_MODE == "N" -o $INPUT_PROXY_MODE == "NO" ]; then
     INPUT_PROXY_MODE="N"
+  fi
+  if [[ $INPUT_PROXY_MODE == "Y" ]]; then
+    echo -e "\033[36m已选择代理模式\033[m"
+    getProxyAddress
+    echo -e "\033[36m代理地址为:$INPUT_PROXY_ADDRESS\033[m"
+    openProxy
+  elif [[ $INPUT_PROXY_MODE == "N" ]]; then
+    echo -e "\033[36m已选择非代理模式\033[m"
     return
   else
     echo -e "\033[36m请输入 y(YES) or n(NO)\033[m"
@@ -93,44 +100,45 @@ startProxy
 
 if [[ -d "$ZSH" ]]; then
   echo -e "\033[36m>>>>>>>>>>>>>> oh my zsh updating <<<<<<<<<<<<<<\033[0m"
-  env ZSH=$ZSH sh $ZSH/tools/upgrade.sh >/dev/null 2>&1
+  env ZSH=$ZSH sh $ZSH/tools/upgrade.sh
 fi
 
 if [[ $(which brew) ]]; then
   echo -e "\033[36m>>>>>>>>>>>>>> brew updating <<<<<<<<<<<<<<\033[0m"
-  brew update >/dev/null 2>&1
+  brew update
   echo -e "\033[36m>>>>>>>>>>>>>> brew upgrading <<<<<<<<<<<<<<\033[0m"
-  brew upgrade >/dev/null 2>&1
-  brew cleanup >/dev/null 2>&1
+  brew upgrade
+  brew cleanup
   echo -e "\033[36m>>>>>>>>>>>>>> brew cask upgrading <<<<<<<<<<<<<<\033[0m"
-  brew cask upgrade >/dev/null 2>&1
-  brew cask cleanup >/dev/null 2>&1
+  brew cask upgrade
+  brew cask cleanup
 fi
 
 if [[ $(which pip2) ]]; then
   echo -e "\033[36m>>>>>>>>>>>>>> pip2 upgrading <<<<<<<<<<<<<<\033[0m"
-  sudo -H pip2 install --upgrade pip >/dev/null 2>&1
-  sudo -H pip2 list --outdated --format=freeze >/dev/null 2>&1 | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 sudo -H pip2 install --no-cache-dir -U >/dev/null 2>&1
+  sudo -H pip2 install --upgrade pip
+  sudo -H pip2 list --outdated --format=freeze  | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 sudo -H pip2 install --no-cache-dir -U
 fi
 
 if [[ $(which pip3) ]]; then
   echo -e "\033[36m>>>>>>>>>>>>>> pip3 upgrading <<<<<<<<<<<<<<\033[0m"
-  sudo -H pip3 install --upgrade pip >/dev/null 2>&1
-  sudo -H pip3 list --outdated --format=freeze >/dev/null 2>&1 | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 sudo -H pip3 install --no-cache-dir -U >/dev/null 2>&1
+  sudo -H pip3 install --upgrade pip
+  sudo -H pip3 list --outdated --format=freeze  | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 sudo -H pip3 install --no-cache-dir -U
 fi
 
 if [[ $(which gem) ]]; then
   echo -e "\033[36m>>>>>>>>>>>>>> update_rubygems <<<<<<<<<<<<<<\033[0m"
   update_rubygems >/dev/null 2>&1
   echo -e "\033[36m>>>>>>>>>>>>>> gem update system <<<<<<<<<<<<<<\033[0m"
-  sudo gem update --system >/dev/null 2>&1
+  sudo gem update --system
   echo -e "\033[36m>>>>>>>>>>>>>> gem update <<<<<<<<<<<<<<\033[0m"
-  sudo gem update >/dev/null 2>&1
+  sudo gem update
+  sudo gem cleanup
 fi
 
 if [[ $(which pod) ]]; then
   echo -e "\033[36m>>>>>>>>>>>>>> updating pods <<<<<<<<<<<<<<\033[0m"
-  pod repo update >/dev/null 2>&1
+  pod repo update
 fi
 
 closeProxy
