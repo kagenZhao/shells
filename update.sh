@@ -41,7 +41,6 @@ function openProxy() {
   export ALL_PROXY=$INPUT_PROXY_ADDRESS
   git config --global http.proxy $INPUT_PROXY_ADDRESS
   git config --global https.proxy $INPUT_PROXY_ADDRESS
-  echo -e "\033[36m>>>>>>>>>>>>>> 成功开启全局代理<<<<<<<<<<<<<<\033[0m"
 }
 
 function closeProxy() {
@@ -54,7 +53,16 @@ function closeProxy() {
   git config --global --unset http.proxy
   git config --global --unset https.proxy
   sed -i -e '/^\[http\]/d;/^\[https\]/d' ~/.gitconfig
+}
+
+function closeProxyWithLog() {
+  closeProxy
   echo -e "\033[36m>>>>>>>>>>>>>> 成功关闭全局代理<<<<<<<<<<<<<<\033[0m"
+}
+
+function openProxyWithLog() {
+  openProxy
+  echo -e "\033[36m>>>>>>>>>>>>>> 成功开启全局代理<<<<<<<<<<<<<<\033[0m"
 }
 
 
@@ -86,7 +94,7 @@ function startProxy() {
     echo -e "\033[36m已选择代理模式\033[m"
     getProxyAddress
     echo -e "\033[36m代理地址为:$INPUT_PROXY_ADDRESS\033[m"
-    openProxy
+    openProxyWithLog
   elif [[ $INPUT_PROXY_MODE == "N" ]]; then
     echo -e "\033[36m已选择非代理模式\033[m"
     return
@@ -116,32 +124,53 @@ fi
 
 if [[ $(which pip2) ]]; then
   echo -e "\033[36m>>>>>>>>>>>>>> pip2 upgrading <<<<<<<<<<<<<<\033[0m"
-  sudo -H pip2 install --upgrade pip
-  sudo -H pip2 list --outdated --format=freeze  | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 sudo -H pip2 install --no-cache-dir -U
+  if [[ $INPUT_PROXY_MODE != "Y" ]]; then
+    sudo -H pip2 install --upgrade pip
+    sudo -H pip2 list --outdated --format=freeze  | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 sudo -H pip2 install -U
+  else
+    sudo -H pip2 install --proxy $INPUT_PROXY_ADDRESS --upgrade pip
+    sudo -H pip2 list --outdated --format=freeze  | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 sudo -H pip2 install --proxy $INPUT_PROXY_ADDRESS -U
+  fi
 fi
 
 if [[ $(which pip3) ]]; then
   echo -e "\033[36m>>>>>>>>>>>>>> pip3 upgrading <<<<<<<<<<<<<<\033[0m"
-  sudo -H pip3 install --upgrade pip
-  sudo -H pip3 list --outdated --format=freeze  | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 sudo -H pip3 install --no-cache-dir -U
+  if [[ $INPUT_PROXY_MODE != "Y" ]]; then
+    sudo -H pip3 install --upgrade pip
+    sudo -H pip3 list --outdated --format=freeze  | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 sudo -H pip3 install -U
+  else
+    sudo -H pip3 install --proxy $INPUT_PROXY_ADDRESS --upgrade pip
+    sudo -H pip3 list --outdated --format=freeze  | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 sudo -H pip3 install --proxy $INPUT_PROXY_ADDRESS -U
+  fi
 fi
 
 if [[ $(which gem) ]]; then
-  echo -e "\033[36m>>>>>>>>>>>>>> update_rubygems <<<<<<<<<<<<<<\033[0m"
-  update_rubygems >/dev/null 2>&1
-  echo -e "\033[36m>>>>>>>>>>>>>> gem update system <<<<<<<<<<<<<<\033[0m"
-  sudo gem update --system
-  echo -e "\033[36m>>>>>>>>>>>>>> gem update <<<<<<<<<<<<<<\033[0m"
-  sudo gem update
-  sudo gem cleanup
+  if [[ $INPUT_PROXY_MODE != "Y" ]]; then
+    echo -e "\033[36m>>>>>>>>>>>>>> gem update system <<<<<<<<<<<<<<\033[0m"
+    sudo gem update --system
+    echo -e "\033[36m>>>>>>>>>>>>>> gem update <<<<<<<<<<<<<<\033[0m"
+    sudo gem update
+    sudo gem cleanup
+  else
+    echo -e "\033[36m>>>>>>>>>>>>>> gem update system <<<<<<<<<<<<<<\033[0m"
+    sudo gem update -p $INPUT_PROXY_ADDRESS --system
+    echo -e "\033[36m>>>>>>>>>>>>>> gem update <<<<<<<<<<<<<<\033[0m"
+    sudo gem update -p $INPUT_PROXY_ADDRESS
+    sudo gem cleanup
+  fi
+
 fi
 
 if [[ $(which pod) ]]; then
   echo -e "\033[36m>>>>>>>>>>>>>> updating pods <<<<<<<<<<<<<<\033[0m"
-  pod repo update
+  pod repo update master
+  # 忽略私有库 只为master 添加代理 私有库一般都是内网 或者 国内网络 不需要代理
+  closeProxy
+  pod repo | grep -Eo '^[a-zA-Z_-]+$' | grep -Eov "^master$" | xargs -n1  pod repo update
+  openProxy
 fi
 
-closeProxy
+closeProxyWithLog
 
 ## 注释原因参考 newMac.sh
 # if [[! $(which mas) ]]; then
