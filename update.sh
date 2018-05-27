@@ -56,11 +56,17 @@ function closeProxy() {
 }
 
 function closeProxyWithLog() {
+  if [[ $INPUT_PROXY_MODE != "Y" ]]; then
+    return
+  fi
   closeProxy
   echo -e "\033[36m>>>>>>>>>>>>>> 成功关闭全局代理<<<<<<<<<<<<<<\033[0m"
 }
 
 function openProxyWithLog() {
+  if [[ $INPUT_PROXY_MODE != "Y" ]]; then
+    return
+  fi
   openProxy
   echo -e "\033[36m>>>>>>>>>>>>>> 成功开启全局代理<<<<<<<<<<<<<<\033[0m"
 }
