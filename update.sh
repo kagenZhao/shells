@@ -142,29 +142,24 @@ fi
 if [[ $(which pip3) ]]; then
   echo -e "\033[36m>>>>>>>>>>>>>> pip3 upgrading <<<<<<<<<<<<<<\033[0m"
   if [[ $INPUT_PROXY_MODE != "Y" ]]; then
-    sudo -H pip3 install --upgrade pip
-    sudo -H pip3 list --outdated --format=freeze  | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 sudo -H pip3 install -U
+    sudo -H pip3 install --upgrade --no-cache-dir pip
+    sudo -H pip3 list --no-cache-dir --outdated --format=freeze  | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 sudo -H pip3 install -U --no-cache-dir
   else
-    sudo -H pip3 install --proxy $INPUT_PROXY_ADDRESS --upgrade pip
-    sudo -H pip3 list --outdated --format=freeze  | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 sudo -H pip3 install --proxy $INPUT_PROXY_ADDRESS -U
+    sudo -H pip3 install --proxy $INPUT_PROXY_ADDRESS --upgrade --no-cache-dir pip
+    sudo -H pip3 list --no-cache-dir --outdated --format=freeze  | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 sudo -H pip3 install --proxy $INPUT_PROXY_ADDRESS -U --no-cache-dir
   fi
 fi
 
 if [[ $(which gem) ]]; then
   if [[ $INPUT_PROXY_MODE != "Y" ]]; then
-    echo -e "\033[36m>>>>>>>>>>>>>> gem update system <<<<<<<<<<<<<<\033[0m"
+    echo -e "\033[36m>>>>>>>>>>>>>> gem update <<<<<<<<<<<<<<\033[0m"
     sudo gem update --system
-    echo -e "\033[36m>>>>>>>>>>>>>> gem update <<<<<<<<<<<<<<\033[0m"
     sudo gem update
-    sudo gem cleanup
   else
-    echo -e "\033[36m>>>>>>>>>>>>>> gem update system <<<<<<<<<<<<<<\033[0m"
     sudo gem update -p $INPUT_PROXY_ADDRESS --system
-    echo -e "\033[36m>>>>>>>>>>>>>> gem update <<<<<<<<<<<<<<\033[0m"
     sudo gem update -p $INPUT_PROXY_ADDRESS
-    sudo gem cleanup
   fi
-
+  sudo gem cleanup
 fi
 
 if [[ $(which pod) ]]; then
