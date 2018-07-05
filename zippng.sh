@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
 
-function fix_file_size_string() {
-	size=$1
-	size=$(echo "${size}" | awk '{ split( "B KB MB GB TB PB" , v ); s=1; while( $1>1024 ){ $1/=1024; s++ } printf "%.2f %s", $1, v[s] }')
-	echo $size
-}
+source ./tools.sh
 
 function read_dir() {
 	OLDIFS=$IFS
@@ -33,14 +29,14 @@ function read_dir() {
 			then
 				PNGCount=$((PNGCount+1))
                 oldSize=$(wc -c "${ALLPATH}" | awk '{print $1}')
-                oldSizestr=$(fix_file_size_string $oldSize)
+                oldSizestr=$(tools_echo_file_size_string $oldSize)
                 pngquant -f --ext .png --quality $ZIPQUALITY $ALLPATH
                 echo $?
                 if [[ $? -ne 0 ]]; then
                 	ERRORZIP=$((ERRORZIP+1))
                 else
                 	newSize=$(wc -c "${ALLPATH}" | awk '{print $1}')
-                	newSizestr=$(fix_file_size_string $newSize)
+                	newSizestr=$(tools_echo_file_size_string $newSize)
                 	zipPercent=$(echo "$newSize $oldSize" | awk '{printf ("%.2f",($2-$1)/$2*100)}')
 					echo "$ALLPATH -- $oldSizestr >>> $newSizestr  压缩率$zipPercent%" >> $OUTPUTFILE
 					SUCCESSZIP=$((SUCCESSZIP+1))
@@ -52,15 +48,7 @@ function read_dir() {
 	echo "$PNGCount|$SUCCESSZIP|$ERRORZIP"
 }
 
-function install_pngquant() {
-	/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-	sudo chown -R $(whoami) $(brew --prefix)/*
-	brew install pngquant
-}
-
-if [[ ! $(which brew) ]]; then
-	install_pngquant
-fi
+tools_check_brew_libs_and_install "pngquant" >/dev/null 2>&1
 
 
 LOGFILE="/Users/$(echo `whoami`)/Desktop/outputImages.log"
@@ -113,7 +101,6 @@ if [[ $INPUTFILE = "" ]]; then
 	echo "请输入图片所在路径"
 	exit 1
 fi
-
 
 echo "" >> $LOGFILE
 echo "" >> $LOGFILE

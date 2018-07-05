@@ -1,22 +1,11 @@
 #!/usr/bin/env bash
 
-array_contains () {
-    local seeking=$1; shift
-    local in=1
-    for element; do
-        if [[ $element == $seeking ]]; then
-            in=0
-            echo 0
-            break
-        fi
-    done
-    return $in
-}
+source ./tools.sh
 
 echo -n "please input sudo password:"
 read -s INPUT_SUDO_PASSWORD
 echo
-echo $INPUT_SUDO_PASSWORD | sudo -S -v
+echo ${INPUT_SUDO_PASSWORD} | sudo -S -v
 echo
 
 XCODE_PATH="/Applications/Xcode.app"
@@ -48,8 +37,8 @@ echo -e "\033[36m >>>>>>>>>>>>>> Homebrew 已安装 <<<<<<<<<<<<<< \033[0m"
 
 HOMEBREW_INSTALL_PATH="/usr/local/share/"
 if [[ ! -x "$HOMEBREW_INSTALL_PATH" ]]; then
-   echo -e "\033[36m >>>>>>>>>>>>>> 正在配置Homebrew权限 <<<<<<<<<<<<<< \033[0m"
-　　sudo chown -R $(whoami) $(brew --prefix)/*
+    echo -e "\033[36m >>>>>>>>>>>>>> 正在配置Homebrew权限 <<<<<<<<<<<<<< \033[0m"
+    sudo chown -R $(whoami) $(brew --prefix)/*
 fi
 
 echo -e "\033[36m >>>>>>>>>>>>>> Homebrew 权限设置完毕 <<<<<<<<<<<<<< \033[0m"
@@ -64,15 +53,15 @@ BREW_IS_INSTALLED=$(brew list)
 
 for value in ${BREW_WILL_INSTALLS[@]}
 do
-  if [[ ! $(array_contains $value $BREW_IS_INSTALLED) ]]; then
-      echo -e "\033[36m >>>>>>>>>>>>>> 开始安装 $value <<<<<<<<<<<<<< \033[0m"
-      brew install $value
+  if [[ ! $(tools_array_contains ${value} ${BREW_IS_INSTALLED}) ]]; then
+      echo -e "\033[36m >>>>>>>>>>>>>> 开始安装 ${value} <<<<<<<<<<<<<< \033[0m"
+      brew install ${value}
   fi
   echo -e "\033[36m >>>>>>>>>>>>>> $value 已安装 <<<<<<<<<<<<<< \033[0m"
 done
 
 LLDBINIT_PATH="~/.lldbinit"
-if [[ ! -d $LLDBINIT_PATH ]]; then
+if [[ ! -d ${LLDBINIT_PATH} ]]; then
   echo -e "\033[36m >>>>>>>>>>>>>> 正在配置 chisel lldbinit 文件 <<<<<<<<<<<<<< \033[0m"
   echo "command script import /usr/local/opt/chisel/libexec/fblldb.py" > ~/.lldbinit
 fi
@@ -109,17 +98,17 @@ echo -e "\033[36m >>>>>>>>>>>>>> Powerline 已安装 <<<<<<<<<<<<<< \033[0m"
 
 ZSH_SYNTAX_HIGHLIGHTING_PATH="/usr/local/share/zsh-syntax-highlighting/"
 if [[ ! -d "$ZSH_SYNTAX_HIGHLIGHTING_PATH" ]]; then
-  echo -e "\033[36m >>>>>>>>>>>>>> 开始安装语法高亮 <<<<<<<<<<<<<< \033[0m"
-　brew install zsh-syntax-highlighting
-  # 然后要加几行文字到 ~/.zshrc中
-  ZSH_SYNTAX_HIGHLIGHTING_TEXT="
-  # 为 zsh 配置语法高亮
-  # If you receive \"highlighters directory not found\" error message,
-  # you may need to add the following to your .zshenv:
-  #   export ZSH_HIGHLIGHT_HIGHLIGHTERS_DIR=/usr/local/share/zsh-syntax-highlighting/highlighters
-  source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-  "
-  echo ZSH_SYNTAX_HIGHLIGHTING_TEXT >> ~/.zshrc
+    echo -e "\033[36m >>>>>>>>>>>>>> 开始安装语法高亮 <<<<<<<<<<<<<< \033[0m"
+    brew install zsh-syntax-highlighting
+    # 然后要加几行文字到 ~/.zshrc中
+    ZSH_SYNTAX_HIGHLIGHTING_TEXT="
+    # 为 zsh 配置语法高亮
+    # If you receive \"highlighters directory not found\" error message,
+    # you may need to add the following to your .zshenv:
+    #   export ZSH_HIGHLIGHT_HIGHLIGHTERS_DIR=/usr/local/share/zsh-syntax-highlighting/highlighters
+    source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+    "
+    echo ZSH_SYNTAX_HIGHLIGHTING_TEXT >> ~/.zshrc
 fi
 
 echo -e "\033[36m >>>>>>>>>>>>>> 已配置语法高亮 <<<<<<<<<<<<<< \033[0m"
@@ -130,12 +119,12 @@ if [[ ! $(which nginx) ]]; then
   brew install nginx
   # plutil 可以修改plist 再 mysql 和 nginx 添加自启动的时候回用到
   NGINX_BREW_PLIST_PATH=$(ls /usr/local/opt/nginx/*.plist)
-  sudo cp $NGINX_BREW_PLIST_PATH /Library/LaunchDaemons
-  sudo NGINX_LAUNCH_PLIST_PATH="/Library/LaunchDaemons/$NGINX_BREW_PLIST_PATH"
-  sudo plutil -remove ProgramArguments $NGINX_LAUNCH_PLIST_PATH
-  sudo plutil -insert ProgramArguments -json "[]" $NGINX_LAUNCH_PLIST_PATH
-  sudo plutil -insert ProgramArguments.0 -string "/usr/local/opt/nginx/bin/nginx" $NGINX_LAUNCH_PLIST_PATH
-  sudo launchctl load -w $NGINX_LAUNCH_PLIST_PATH
+  sudo cp ${NGINX_BREW_PLIST_PATH} /Library/LaunchDaemons
+  NGINX_LAUNCH_PLIST_PATH="/Library/LaunchDaemons/$NGINX_BREW_PLIST_PATH"
+  sudo plutil -remove ProgramArguments ${NGINX_LAUNCH_PLIST_PATH}
+  sudo plutil -insert ProgramArguments -json "[]" ${NGINX_LAUNCH_PLIST_PATH}
+  sudo plutil -insert ProgramArguments.0 -string "/usr/local/opt/nginx/bin/nginx" ${NGINX_LAUNCH_PLIST_PATH}
+  sudo launchctl load -w ${NGINX_LAUNCH_PLIST_PATH}
 fi
 
 echo -e "\033[36m >>>>>>>>>>>>>> nginx 已安装 并自启动 <<<<<<<<<<<<<< \033[0m"
@@ -159,9 +148,9 @@ BREW_CASK_IS_INSTALLED=$(brew cask list)
 
 for value in ${QUICKLOOK_PACKAGE[@]}
 do
-  if [[ ! $(array_contains $value $BREW_CASK_IS_INSTALLED) ]]; then
+  if [[ ! $(tools_array_contains ${value} ${BREW_CASK_IS_INSTALLED}) ]]; then
       echo -e "\033[36m >>>>>>>>>>>>>> 开始安装 $value <<<<<<<<<<<<<< \033[0m"
-      brew cask install $value
+      brew cask install ${value}
   fi
     echo -e "\033[36m >>>>>>>>>>>>>> $value 已安装 <<<<<<<<<<<<<< \033[0m"
 
@@ -169,9 +158,9 @@ done
 
 for value in ${CASK_WILL_INSTALLS[@]}
 do
-  if [[ ! $(array_contains $value $BREW_CASK_IS_INSTALLED) ]]; then
+  if [[ ! $(tools_array_contains ${value} ${BREW_CASK_IS_INSTALLED}) ]]; then
       echo -e "\033[36m >>>>>>>>>>>>>> 开始安装 $value <<<<<<<<<<<<<< \033[0m"
-      brew cask install $value
+      brew cask install ${value}
   fi
     echo -e "\033[36m >>>>>>>>>>>>>> $value 已安装 <<<<<<<<<<<<<< \033[0m"
 
@@ -180,9 +169,9 @@ done
 
 for value in ${CASK_FRAMEWORKS[@]}
 do
-  if [[ ! $(array_contains $value $BREW_CASK_IS_INSTALLED) ]]; then
+  if [[ ! $(tools_array_contains ${value} ${BREW_CASK_IS_INSTALLED}) ]]; then
       echo -e "\033[36m >>>>>>>>>>>>>> 开始安装 $value <<<<<<<<<<<<<< \033[0m"
-      brew cask install $value
+      brew cask install ${value}
   fi
     echo -e "\033[36m >>>>>>>>>>>>>> $value 已安装 <<<<<<<<<<<<<< \033[0m"
 done
@@ -198,7 +187,7 @@ done
 # app_store_apps_exist=$(mas list | cut -d ' ' -f 2)
 # for value in ${app_store_apps[@]}
 # do
-#   if [[ ! $(array_contains $value $app_store_apps_exist) ]]; then
+#   if [[ ! $(tools_array_contains $value $app_store_apps_exist) ]]; then
 #     value_number=$(mas search $value | grep -Eo "^([0-9]+)\s$value\s\([0-9\.]+\)" | cut -d ' ' -f 1)
 #     mas install $value_number
 #   fi
