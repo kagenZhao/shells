@@ -16,7 +16,7 @@ function openProxy() {
   if [[ ${INPUT_PROXY_MODE} != "Y" ]]; then
     return
   fi
-  tools_openProxy ${INPUT_PROXY_MODE}
+  tools_openProxy ${INPUT_PROXY_ADDRESS}
 }
 
 function closeProxy() {
