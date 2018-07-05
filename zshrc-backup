@@ -1,0 +1,167 @@
+# 取消注释以下行以使用区分大小写的完成。
+# CASE_SENSITIVE="true"
+
+# 取消注释以下行以使用连字符不敏感完成。 区分大小写的完成必须关闭。 _和 - 可以互换。
+# HYPHEN_INSENSITIVE="true"
+
+# 禁用双周自动更新检查。
+# DISABLE_AUTO_UPDATE="true"
+
+# 自动更新频率
+# export UPDATE_ZSH_DAYS=13
+
+# 禁用ls中的颜色。
+# DISABLE_LS_COLORS="true"
+
+# 禁用自动设置终端标题。
+# DISABLE_AUTO_TITLE="true"
+
+# 启用命令自动更正。
+# ENABLE_CORRECTION="true"
+
+# 显示红点，同时等待完成。
+# COMPLETION_WAITING_DOTS="true"
+
+# Uncomment the following line if you want to disable marking untracked files
+# under VCS as dirty. This makes repository status check for large repositories
+# much, much faster.
+# DISABLE_UNTRACKED_FILES_DIRTY="true"
+
+# 如果要更改历史命令输出中显示的命令执行时间戳，请取消注释以下行。
+# HIST_STAMPS="mm/dd/yyyy"
+
+# 语言环境
+# export LANG=en_US.UTF-8
+
+# 汇编标志
+# export ARCHFLAGS="-arch x86_64"
+
+
+# 第一次启动时输入密码后  后续的会自动输入 ssh密码
+# # 没有密码不用设置
+# function start_agent {
+#     echo "initializing new SSH agent..."
+#     ssh-agent | sed 's/^echo/#echo/' > "$SSH_ENV"
+#     echo succeeded
+#     chmod 600 "$SSH_ENV"
+#     . "$SSH_ENV" > /dev/null
+#     ssh-add
+# }
+
+# function test_identities {
+#     ssh-add -l | grep "The agent has no identities" > /dev/null
+#     if [ $? -eq 0 ]; then
+#         ssh-add
+#         if [ $? -eq 2 ];then
+#             start_agent
+#         fi
+#     fi
+
+# }
+# if [ -n "$SSH_AGENT_PID" ]; then
+#     ps -ef | grep "$SSH_AGENT_PID" | grep ssh-agent > /dev/null
+#     if [ $? -eq 0 ]; then
+#         test_identities
+#     fi
+# else
+#     if [ -f "$SSH_ENV" ]; then
+#         . "$SSH_ENV" > /dev/null
+#     fi
+#     ps -ef | grep "$SSH_AGENT_PID" | grep -v grep | grep ssh-agent > /dev/null
+#     if [ $? -eq 0 ]; then
+#         test_identities
+#     else
+#         start_agent
+#     fi
+# fi
+
+
+# ZSH_THEME="random"
+# ZSH_THEME="robbyrussell"
+# ZSH_THEME="agnoster-fcamblor"
+ZSH_THEME="ys"
+plugins=(git osx terminalapp brew node wd npm pod last-working-dir pip)
+
+export ZSH=~/.oh-my-zsh
+source $ZSH/oh-my-zsh.sh
+
+
+# 用于解决 IntelliJ IDEA 用javadoc 生成文档时 控制台输出不是中文(????) 的问题
+export JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8"
+
+# GOPATH
+export GOPATH=$HOME/Documents/personal/Go
+
+# JAVA_HOME
+export JAVA_HOME=/Library/Java/Home
+export ANDROID_HOME=$HOME/Library/Android/sdk
+export PATH=$ANDROID_HOME/platform-tools:$PATH
+export PATH=$ANDROID_HOME/tools:$PATH
+export PATH=$JAVA_HOME/bin:$PATH
+
+# 部分brew 安装的库 可能存放在 /usr/local/sbin 中
+export PATH=${PATH/\/usr\/local\/bin/\/usr\/local\/bin:\/usr\/local\/sbin}
+
+
+
+# NVM node 地址
+# export NVM_DIR="$HOME/.nvm"
+# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+# [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# RVM ruby 地址
+# export PATH="$HOME/.rvm/bin:$PATH" # Add RVM to PATH for scripting
+# [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
+
+# export BOOST_BUILD_PATH=$HOME
+# export BOOST_ROOT="/usr/local/share/boost-build/src/build/"
+# export BOOST_ROOT="/Users/kagenzhao/Downloads/boost_1_64_0"
+
+
+# 默认终端编辑器
+export EDITOR=\''/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl'\'
+
+# sublime text终端快捷方式 cask 安装的 自带subl
+# alias subl=\''/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl'\'
+
+# 解决调用brew 每次都要update
+# export HOMEBREW_NO_AUTO_UPDATE=1
+
+# 为iterm 设置 zsh
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+
+# 为 zsh 配置语法高亮
+# If you receive "highlighters directory not found" error message,
+# you may need to add the following to your .zshenv:
+#   export ZSH_HIGHLIGHT_HIGHLIGHTERS_DIR=/usr/local/share/zsh-syntax-highlighting/highlighters
+source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+
+alias upgradeAll="~/.user_scripts/shells/update.sh"
+
+# 启用 终端 代理
+proxy_on() {
+	export http_proxy=http://127.0.0.1:1087
+	export https_proxy=http://127.0.0.1:1087
+	export ALL_PROXY=http://127.0.0.1:1087
+	git config --global http.proxy 'http://127.0.0.1:1087'
+	git config --global https.proxy 'http://127.0.0.1:1087'
+}
+
+# 关闭终端代理
+proxy_off() {
+	unset http_proxy
+	unset https_proxy
+	unset ALL_PROXY
+	git config --global --unset http.proxy
+	git config --global --unset https.proxy
+	sed -i -e '/^\[http\]/d;/^\[https\]/d' ~/.gitconfig
+}
+
+alias brew_no_update="HOMEBREW_NO_AUTO_UPDATE=1 "
+
+# 默认关闭
+proxy_off
+
+# 比较好玩的每日金句 / 一头牛 / 渐变色显示 
+# fortune | cowsay | lolcat
