@@ -127,6 +127,8 @@ if [[ $INPUTFILE = "" ]]; then
 	exit 1
 fi
 
+open "$LOGFILE" &
+
 echo "" >> "$LOGFILE"
 echo "" >> "$LOGFILE"
 echo "" >> "$LOGFILE"
@@ -134,10 +136,9 @@ echo "" >> "$LOGFILE"
 echo "开始压缩PNG图片: $(echo `date '+%Y-%m-%d %H:%M:%S'`)" >> "$LOGFILE"
 echo "压缩路径: $INPUTFILE" >> "$LOGFILE"
 echo "日志路径: $LOGFILE" >> "$LOGFILE"
+echo "压缩质量: $ZIPQUALITY" >> "$LOGFILE"
 
 zip_result=$(read_dir "$INPUTFILE" "$LOGFILE" $ZIPQUALITY)
 
 echo "压缩PNG图片完毕: $(echo `date '+%Y-%m-%d %H:%M:%S'`), 图片数量:$(echo $zip_result | cut -d '|' -f 1), 成功:$(echo $zip_result | cut -d '|' -f 2), 失败:$(echo $zip_result | cut -d '|' -f 3)" >> "$LOGFILE"
-
-open "$LOGFILE"
 
