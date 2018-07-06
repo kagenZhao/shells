@@ -101,7 +101,7 @@ if [[ ! -d "$ZSH_SYNTAX_HIGHLIGHTING_PATH" ]]; then
     echo -e "\033[36m >>>>>>>>>>>>>> 开始安装语法高亮 <<<<<<<<<<<<<< \033[0m"
     brew install zsh-syntax-highlighting
     # 然后要加几行文字到 ~/.zshrc中
-    ZSH_SYNTAX_HIGHLIGHTING_TEXT="
+    local ZSH_SYNTAX_HIGHLIGHTING_TEXT="
     # 为 zsh 配置语法高亮
     # If you receive \"highlighters directory not found\" error message,
     # you may need to add the following to your .zshenv:
@@ -118,9 +118,9 @@ if [[ ! $(which nginx) ]]; then
   echo -e "\033[36m >>>>>>>>>>>>>> 开始安装 nginx <<<<<<<<<<<<<< \033[0m"
   brew install nginx
   # plutil 可以修改plist 再 mysql 和 nginx 添加自启动的时候回用到
-  NGINX_BREW_PLIST_PATH=$(ls /usr/local/opt/nginx/*.plist)
+  local NGINX_BREW_PLIST_PATH=$(ls /usr/local/opt/nginx/*.plist)
   sudo cp ${NGINX_BREW_PLIST_PATH} /Library/LaunchDaemons
-  NGINX_LAUNCH_PLIST_PATH="/Library/LaunchDaemons/$NGINX_BREW_PLIST_PATH"
+  local NGINX_LAUNCH_PLIST_PATH="/Library/LaunchDaemons/$NGINX_BREW_PLIST_PATH"
   sudo plutil -remove ProgramArguments ${NGINX_LAUNCH_PLIST_PATH}
   sudo plutil -insert ProgramArguments -json "[]" ${NGINX_LAUNCH_PLIST_PATH}
   sudo plutil -insert ProgramArguments.0 -string "/usr/local/opt/nginx/bin/nginx" ${NGINX_LAUNCH_PLIST_PATH}

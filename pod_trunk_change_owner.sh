@@ -26,7 +26,7 @@ read Enter
 POD_TRUNK_LIST_STRING=$(pod trunk me | grep -Ev 'IP:\s' | grep -E '^\s\s\s' | tr -d '    -' | tr '\n' ' ')
 POD_TRUNK_COUNT=1
 while [[ 1 ]]; do
-	POD_TRUNK_ITEM=$(echo ${POD_TRUNK_LIST_STRING} | cut -d ' ' -f ${POD_TRUNK_COUNT} | tr -d '[:space:]')
+	local POD_TRUNK_ITEM=$(echo ${POD_TRUNK_LIST_STRING} | cut -d ' ' -f ${POD_TRUNK_COUNT} | tr -d '[:space:]')
 	if [[ -z ${POD_TRUNK_ITEM} ]]; then
 		break
 	fi
@@ -44,7 +44,7 @@ echo
 POD_TRUNK_LIST_STRING=$(pod trunk me | grep -Ev 'IP:\s' | grep -E '^\s\s\s' | tr -d '    -' | tr '\n' ' ')
 POD_TRUNK_COUNT=1
 while [[ 1 ]]; do
-	POD_TRUNK_ITEM=$(echo ${POD_TRUNK_LIST_STRING} | cut -d ' ' -f ${POD_TRUNK_COUNT} | tr -d '[:space:]')
+	local POD_TRUNK_ITEM=$(echo ${POD_TRUNK_LIST_STRING} | cut -d ' ' -f ${POD_TRUNK_COUNT} | tr -d '[:space:]')
 	if [[ -z ${POD_TRUNK_ITEM} ]]; then
 		break
 	fi

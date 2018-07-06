@@ -33,8 +33,7 @@ tools_array_contains () {
 }
 
 tools_echo_file_size_string() {
-    size=$1
-    size=$(echo "${size}" | awk '{ split( "B KB MB GB TB PB" , v ); s=1; while( $1>1024 ){ $1/=1024; s++ } printf "%.2f %s", $1, v[s] }')
+    local size=$(echo "$1" | awk '{ split( "B KB MB GB TB PB" , v ); s=1; while( $1>1024 ){ $1/=1024; s++ } printf "%.2f %s", $1, v[s] }')
     echo ${size}
 }
 
@@ -43,8 +42,8 @@ tools_check_brew_libs_and_install() {
         /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
         sudo chown -R $(whoami) $(brew --prefix)/*
     fi
-    _brew_installed_list=$(brew list)
-    _will_install_apps=$1
+    local _brew_installed_list=$(brew list)
+    local _will_install_apps=$1
     if [[ ! -n "$_will_install_apps" ]]; then
         return
     fi
@@ -61,8 +60,8 @@ tools_check_brew_cask_libs_and_install() {
         /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
         sudo chown -R $(whoami) $(brew --prefix)/*
     fi
-    _brew_cask_installed_list=$(brew cask list)
-    _will_install_apps=$1
+    local _brew_cask_installed_list=$(brew cask list)
+    local _will_install_apps=$1
     if [[ ! -n "$_will_install_apps" ]]; then
         return
     fi
@@ -75,7 +74,7 @@ tools_check_brew_cask_libs_and_install() {
 }
 
 tools_openProxy() {
-    INPUT_PROXY_ADDRESS=$1
+    local INPUT_PROXY_ADDRESS=$1
     if [[ ${INPUT_PROXY_ADDRESS} != http* ]]; then
         INPUT_PROXY_ADDRESS="http://$INPUT_PROXY_ADDRESS"
     fi
