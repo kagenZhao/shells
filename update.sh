@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source ./tools.sh
+source "`dirname $0`/tools.sh"
 
 echo -e -n "\033[36m请输入管理员密码:\033[m"
 read -s INPUT_SUDO_PASSWORD
