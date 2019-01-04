@@ -9,7 +9,7 @@ echo ${INPUT_SUDO_PASSWORD} | sudo -S -v >/dev/null 2>&1;
 echo -e "\033[36m已输入管理员密码\033[m"
 
 INPUT_PROXY_MODE='Y'
-INPUT_PROXY_ADDRESS="127.0.0.1:1087"
+INPUT_PROXY_ADDRESS="http://127.0.0.1:1087"
 IP_ADDRESS_REG='^(http\:\/\/|https\:\/\/)?((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\:([1-9][0-9]{0,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$'
 
 function openProxy() {
@@ -47,7 +47,7 @@ function getProxyAddress() {
   echo -e -n "\033[36m请输入正确的HTTP代理IP及端口(只支持IP,默认为:127.0.0.1:1087):\033[m"
   read INPUT_PROXY_ADDRESS
   if [ ! ${INPUT_PROXY_ADDRESS} ]; then
-    INPUT_PROXY_ADDRESS="127.0.0.1:1087"
+    INPUT_PROXY_ADDRESS="http://127.0.0.1:1087"
   elif [[ "$INPUT_PROXY_ADDRESS" =~ $IP_ADDRESS_REG ]]; then
     return
   else
@@ -93,10 +93,11 @@ if [[ $(which brew) ]]; then
   brew update
   echo -e "\033[36m>>>>>>>>>>>>>> brew upgrading <<<<<<<<<<<<<<\033[0m"
   brew upgrade
-  brew cleanup
   echo -e "\033[36m>>>>>>>>>>>>>> brew cask upgrading <<<<<<<<<<<<<<\033[0m"
-  brew cask upgrade --greedy
-  brew cask cleanup
+  # brew cask upgrade --greedy
+  brew cask upgrade
+  # brew cask cleanup
+  brew cleanup
 fi
 
 if [[ $(which pip2) ]]; then
@@ -127,8 +128,8 @@ if [[ $(which gem) ]]; then
     sudo gem update --system
     sudo gem update
   else
-    sudo gem update -p ${INPUT_PROXY_ADDRESS} --system
-    sudo gem update -p ${INPUT_PROXY_ADDRESS}
+    sudo gem update -p "${INPUT_PROXY_ADDRESS}" --system
+    sudo gem update -p "${INPUT_PROXY_ADDRESS}"
   fi
   sudo gem cleanup
 fi
