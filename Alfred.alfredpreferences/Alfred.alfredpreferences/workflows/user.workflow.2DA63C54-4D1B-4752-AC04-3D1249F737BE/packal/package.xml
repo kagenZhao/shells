@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<workflow>
+  <name>Running</name>
+  <version>1.0</version>
+  <bundle>com.tedwise.running</bundle>
+  <updated>1414070172</updated>
+  <file>running.alfredworkflow</file>
+</workflow>

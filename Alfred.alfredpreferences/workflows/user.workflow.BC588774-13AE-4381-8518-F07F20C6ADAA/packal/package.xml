@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<workflow>
+  <name>SwitchHosts!</name>
+  <version>1.0</version>
+  <bundle>net.oldj.switchhosts</bundle>
+  <updated>1491193645</updated>
+  <file>switchhosts.alfredworkflow</file>
+</workflow>
