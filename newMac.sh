@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-source ./tools.sh
+_SHELL_FILE_PATH=`dirname $0`
+
+source "$_SHELL_FILE_PATH/tools.sh"
 
 echo -n "please input sudo password:"
 read -s INPUT_SUDO_PASSWORD
@@ -43,12 +45,12 @@ fi
 
 echo -e "\033[36m >>>>>>>>>>>>>> Homebrew 权限设置完毕 <<<<<<<<<<<<<< \033[0m"
 
-echo -e "\033[36m >>>>>>>>>>>>>> 开始安装 xcode-select <<<<<<<<<<<<<< \033[0m"
+echo -e "\033[36m >>>>>>>>>>>>>> 开始安装 Homebrew Services <<<<<<<<<<<<<< \033[0m"
 brew tap homebrew/services
 echo -e "\033[36m >>>>>>>>>>>>>> Homebrew Services 设置完毕 <<<<<<<<<<<<<< \033[0m"
 
 
-BREW_WILL_INSTALLS=(wget python python@2 mtr ruby carthage sqlite node watchman openssl curl flow mas make cmake gcc chisel)
+BREW_WILL_INSTALLS=(zsh git wget python python@2 mtr ruby carthage sqlite node watchman openssl curl flow mas make cmake gcc chisel zsh-syntax-highlighting zsh-autosuggestions ngxin mysql go)
 BREW_IS_INSTALLED=$(brew list)
 
 for value in ${BREW_WILL_INSTALLS[@]}
@@ -71,14 +73,25 @@ echo -e "\033[36m >>>>>>>>>>>>>> lldbinit 设置完毕 <<<<<<<<<<<<<< \033[0m"
 
 if [[ ! $(which pod) ]]; then
   echo -e "\033[36m >>>>>>>>>>>>>> 开始安装 Cocoapods <<<<<<<<<<<<<< \033[0m"
-  sudo gem update --system
-  sudo gem install cocoapods
+  sudo /usr/local/bin/gem update --system
+  sudo /usr/local/bin/gem install cocoapods
 fi
 echo -e "\033[36m >>>>>>>>>>>>>> Cocoapods 已安装 <<<<<<<<<<<<<< \033[0m"
+
+
+# 配置iTerm2 
+curl -L "https://iterm2.com/shell_integration/install_shell_integration_and_utilities.sh" | bash
+sudo cp "$_SHELL_FILE_PATH/com.googlecode.iterm2.plist.backup" "$HOME/Library/Preferences/com.googlecode.iterm2.plist"
 
 if [[ ! -d "$ZSH" ]]; then
     echo -e "\033[36m >>>>>>>>>>>>>> 开始安装 ZSH <<<<<<<<<<<<<< \033[0m"
     sh -c "$(wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
+    export ZSH=$HOME/.oh-my-zsh
+    export ZSH_CUSTOM=$ZSH/custom
+    git clone https://github.com/denysdovhan/spaceship-prompt.git "$ZSH_CUSTOM/themes/spaceship-prompt"
+    ln -s "$ZSH_CUSTOM/themes/spaceship-prompt/spaceship.zsh-theme" "$ZSH_CUSTOM/themes/spaceship.zsh-theme"
+    sudo cp "$_SHELL_FILE_PATH/zshrc-backup" "$HOME/.zshrc"
+    source "$HOME/.zshrc"
 fi
 echo -e "\033[36m >>>>>>>>>>>>>> ZSH 已安装 <<<<<<<<<<<<<< \033[0m"
 
@@ -96,53 +109,55 @@ fi
 echo -e "\033[36m >>>>>>>>>>>>>> Powerline 已安装 <<<<<<<<<<<<<< \033[0m"
 
 
-ZSH_SYNTAX_HIGHLIGHTING_PATH="/usr/local/share/zsh-syntax-highlighting/"
-if [[ ! -d "$ZSH_SYNTAX_HIGHLIGHTING_PATH" ]]; then
-    echo -e "\033[36m >>>>>>>>>>>>>> 开始安装语法高亮 <<<<<<<<<<<<<< \033[0m"
-    brew install zsh-syntax-highlighting
-    # 然后要加几行文字到 ~/.zshrc中
-    local ZSH_SYNTAX_HIGHLIGHTING_TEXT="
-    # 为 zsh 配置语法高亮
-    # If you receive \"highlighters directory not found\" error message,
-    # you may need to add the following to your .zshenv:
-    #   export ZSH_HIGHLIGHT_HIGHLIGHTERS_DIR=/usr/local/share/zsh-syntax-highlighting/highlighters
-    source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-    "
-    echo ZSH_SYNTAX_HIGHLIGHTING_TEXT >> ~/.zshrc
-fi
+# 配置Alfred
 
-echo -e "\033[36m >>>>>>>>>>>>>> 已配置语法高亮 <<<<<<<<<<<<<< \033[0m"
+# 统一走 zshrc-backup
+# ZSH_SYNTAX_HIGHLIGHTING_PATH="/usr/local/share/zsh-syntax-highlighting/"
+# if [[ ! -d "$ZSH_SYNTAX_HIGHLIGHTING_PATH" ]]; then
+#     echo -e "\033[36m >>>>>>>>>>>>>> 开始安装语法高亮 <<<<<<<<<<<<<< \033[0m"
+#     # 然后要加几行文字到 ~/.zshrc中
+#     local ZSH_SYNTAX_HIGHLIGHTING_TEXT="
+#     # 为 zsh 配置语法高亮
+#     # If you receive \"highlighters directory not found\" error message,
+#     # you may need to add the following to your .zshenv:
+#     #   export ZSH_HIGHLIGHT_HIGHLIGHTERS_DIR=/usr/local/share/zsh-syntax-highlighting/highlighters
+#     source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+#     "
+#     echo ZSH_SYNTAX_HIGHLIGHTING_TEXT >> ~/.zshrc
+# fi
 
-
-if [[ ! $(which nginx) ]]; then
-  echo -e "\033[36m >>>>>>>>>>>>>> 开始安装 nginx <<<<<<<<<<<<<< \033[0m"
-  brew install nginx
-  # plutil 可以修改plist 再 mysql 和 nginx 添加自启动的时候回用到
-  local NGINX_BREW_PLIST_PATH=$(ls /usr/local/opt/nginx/*.plist)
-  sudo cp ${NGINX_BREW_PLIST_PATH} /Library/LaunchDaemons
-  local NGINX_LAUNCH_PLIST_PATH="/Library/LaunchDaemons/$NGINX_BREW_PLIST_PATH"
-  sudo plutil -remove ProgramArguments ${NGINX_LAUNCH_PLIST_PATH}
-  sudo plutil -insert ProgramArguments -json "[]" ${NGINX_LAUNCH_PLIST_PATH}
-  sudo plutil -insert ProgramArguments.0 -string "/usr/local/opt/nginx/bin/nginx" ${NGINX_LAUNCH_PLIST_PATH}
-  sudo launchctl load -w ${NGINX_LAUNCH_PLIST_PATH}
-fi
-
-echo -e "\033[36m >>>>>>>>>>>>>> nginx 已安装 并自启动 <<<<<<<<<<<<<< \033[0m"
+# echo -e "\033[36m >>>>>>>>>>>>>> 已配置语法高亮 <<<<<<<<<<<<<< \033[0m"
 
 
-if [[ ! $(which mysql) ]]; then
-  echo -e "\033[36m >>>>>>>>>>>>>> 开始安装 mysql <<<<<<<<<<<<<< \033[0m"
-  brew install mysql
-  # 后续操作 https://gist.github.com/nrollr/3f57fc15ded7dddddcc4e82fe137b58e
-  ln -sfv /usr/local/opt/mysql/*.plist ~/Library/LaunchAgents
-  launchctl load ~/Library/LaunchAgents/homebrew.mxcl.mysql.plist
-fi
+# if [[ ! $(which nginx) ]]; then
+#   echo -e "\033[36m >>>>>>>>>>>>>> 开始安装 nginx <<<<<<<<<<<<<< \033[0m"
+#   brew install nginx
+#   # plutil 可以修改plist 再 mysql 和 nginx 添加自启动的时候回用到
+#   local NGINX_BREW_PLIST_PATH=$(ls /usr/local/opt/nginx/*.plist)
+#   sudo cp ${NGINX_BREW_PLIST_PATH} /Library/LaunchDaemons
+#   local NGINX_LAUNCH_PLIST_PATH="/Library/LaunchDaemons/$NGINX_BREW_PLIST_PATH"
+#   sudo plutil -remove ProgramArguments ${NGINX_LAUNCH_PLIST_PATH}
+#   sudo plutil -insert ProgramArguments -json "[]" ${NGINX_LAUNCH_PLIST_PATH}
+#   sudo plutil -insert ProgramArguments.0 -string "/usr/local/opt/nginx/bin/nginx" ${NGINX_LAUNCH_PLIST_PATH}
+#   sudo launchctl load -w ${NGINX_LAUNCH_PLIST_PATH}
+# fi
+brew services start nginx
+# echo -e "\033[36m >>>>>>>>>>>>>> nginx 已安装 并自启动 <<<<<<<<<<<<<< \033[0m"
 
-echo -e "\033[36m >>>>>>>>>>>>>> mysql 已安装 并自启动 <<<<<<<<<<<<<< \033[0m"
 
+# if [[ ! $(which mysql) ]]; then
+#   echo -e "\033[36m >>>>>>>>>>>>>> 开始安装 mysql <<<<<<<<<<<<<< \033[0m"
+#   brew install mysql
+#   # 后续操作 https://gist.github.com/nrollr/3f57fc15ded7dddddcc4e82fe137b58e
+#   ln -sfv /usr/local/opt/mysql/*.plist ~/Library/LaunchAgents
+#   launchctl load ~/Library/LaunchAgents/homebrew.mxcl.mysql.plist
+# fi
+brew services start mysql
+# echo -e "\033[36m >>>>>>>>>>>>>> mysql 已安装 并自启动 <<<<<<<<<<<<<< \033[0m"
 
-QUICKLOOK_PACKAGE=(suspicious-package qlmarkdown quicklook-json quicklookase webpquicklook qlcolorcode qlstephen quicklook-pat qlimagesize qlvideo quicklookapk provisionql)
-CASK_WILL_INSTALLS=(iina switchhosts betterzip qq iina fork iterm2 sublime-text atom dash cleanmymac alfred bartender filezilla google-chrome betterzip istat-menus youdaonote youdaodict shadowsocksx-ng cheatsheet postman wireshark baidunetdisk vmware-fusion kaleidoscope coconutbattery near-lock omnigraffle jetbrains-toolbox android-studio virtualbox qsync-client qfinder-pro thunder docker switchhosts)
+# qlimagesize 呗干掉了  需要自己编译
+QUICKLOOK_PACKAGE=(suspicious-package qlmarkdown quicklook-json quicklookase webpquicklook qlcolorcode qlstephen quicklook-pat qlvideo quicklookapk provisionql)
+CASK_WILL_INSTALLS=(iina switchhosts betterzip qq iina fork iterm2 sublime-text atom dash cleanmymac alfred bartender filezilla google-chrome istat-menus youdaonote youdaodict shadowsocksx-ng cheatsheet postman wireshark baidunetdisk vmware-fusion kaleidoscope coconutbattery near-lock omnigraffle jetbrains-toolbox android-studio virtualbox qsync-client qfinder-pro thunder)
 CASK_FRAMEWORKS=(java docker)
 BREW_CASK_IS_INSTALLED=$(brew cask list)
 
@@ -175,6 +190,8 @@ do
   fi
     echo -e "\033[36m >>>>>>>>>>>>>> $value 已安装 <<<<<<<<<<<<<< \033[0m"
 done
+
+
 
 # 下载app软件  后续需要用户自行安装
 # charles 破解
