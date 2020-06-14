@@ -49,8 +49,7 @@ echo -e "\033[36m >>>>>>>>>>>>>> 开始安装 Homebrew Services <<<<<<<<<<<<<< \
 brew tap homebrew/services
 echo -e "\033[36m >>>>>>>>>>>>>> Homebrew Services 设置完毕 <<<<<<<<<<<<<< \033[0m"
 
-
-BREW_WILL_INSTALLS=(zsh git wget python python@2 mtr ruby carthage sqlite node watchman openssl curl flow mas make cmake gcc chisel zsh-syntax-highlighting zsh-autosuggestions ngxin mysql go)
+BREW_WILL_INSTALLS=(zsh git wget python mtr ruby carthage sqlite node watchman openssl curl flow mas make cmake gcc chisel zsh-syntax-highlighting zsh-autosuggestions ngxin mysql go)
 BREW_IS_INSTALLED=$(brew list)
 
 for value in ${BREW_WILL_INSTALLS[@]}
@@ -61,6 +60,11 @@ do
   fi
   echo -e "\033[36m >>>>>>>>>>>>>> $value 已安装 <<<<<<<<<<<<<< \033[0m"
 done
+
+echo -e "\033[36m >>>>>>>>>>>>>> 开始安装 python2 <<<<<<<<<<<<<< \033[0m"
+brew install "https://raw.githubusercontent.com/Homebrew/homebrew-core/86a44a0a552c673a05f11018459c9f5faae3becc/Formula/python@2.rb"
+echo -e "\033[36m >>>>>>>>>>>>>> python2 已安装 <<<<<<<<<<<<<< \033[0m"
+
 
 LLDBINIT_PATH="~/.lldbinit"
 if [[ ! -d ${LLDBINIT_PATH} ]]; then
@@ -74,7 +78,7 @@ echo -e "\033[36m >>>>>>>>>>>>>> lldbinit 设置完毕 <<<<<<<<<<<<<< \033[0m"
 if [[ ! $(which pod) ]]; then
   echo -e "\033[36m >>>>>>>>>>>>>> 开始安装 Cocoapods <<<<<<<<<<<<<< \033[0m"
   sudo /usr/local/bin/gem update --system
-  sudo /usr/local/bin/gem install cocoapods
+  sudo /usr/local/bin/gem install -n /usr/local/bin/ cocoapods
 fi
 echo -e "\033[36m >>>>>>>>>>>>>> Cocoapods 已安装 <<<<<<<<<<<<<< \033[0m"
 

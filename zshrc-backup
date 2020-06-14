@@ -104,7 +104,6 @@ SPACESHIP_SWIFT_SHOW_GLOBAL=true
 plugins=(
 	git
 	osx
-	terminalapp
 	node
 	wd
 	npm
@@ -114,7 +113,6 @@ plugins=(
 	sudo
 	cp
 	extract 
-	d
 	z
 	)
 

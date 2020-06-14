@@ -136,7 +136,7 @@ fi
 
 if [[ $(which pod) ]]; then
   echo -e "\033[36m>>>>>>>>>>>>>> updating pods <<<<<<<<<<<<<<\033[0m"
-  pod repo update master
+  # pod repo update master
   # 忽略私有库 只为master 添加代理 私有库一般都是内网 或者 国内网络 不需要代理
   closeProxy
   pod repo | grep -Eo '^[a-zA-Z_-]+$' | grep -Eov "^master$" | xargs -n1  pod repo update
