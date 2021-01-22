@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# create by kagen zhao 
+
 source "$(dirname "$0")/tools.sh"
 
 function get_error_message() {
@@ -32,9 +34,16 @@ function read_dir() {
 	local COMPRESSION_QUALITY=$3
 	for file in `ls $1`
 	do 
+		local TEMP_OUTPUT_PATH=$1"/temp."$file
 		local FULL_PATH=$1"/"$file
 		if [ -d "$FULL_PATH" ]
 		then 
+			for EXCLUDE_DIR in ${EXCLUDE_PATH_DIR_LIST[@]}
+			do
+				if [ "$FULL_PATH" = "$EXCLUDE_DIR" ]; then
+					continue 2;
+				fi
+			done
 			local sub_result=$(read_dir "$FULL_PATH" "$OUTPUT_FILE" $COMPRESSION_QUALITY)
 			local sub_count=$(echo $sub_result | cut -d '|' -f 1)
 			local sub_success_count=$(echo $sub_result | cut -d '|' -f 2)
@@ -43,6 +52,12 @@ function read_dir() {
 			SUCCESS_COMPRESSION=$((SUCCESS_COMPRESSION+sub_success_count))
 			ERROR_COMPRESSION=$((ERROR_COMPRESSION+sub_error_count))
 		else 
+			for EXCLUDE_FILE in ${EXCLUDE_PATH_FILE_LIST[@]}
+			do
+				if [ "$FULL_PATH" = "$EXCLUDE_FILE" ]; then
+					continue 2;
+				fi
+			done
 			local file_extension=${file##*.}
 			file_extension=$(echo $file_extension | tr 'a-z' 'A-Z')
 			if [ $file_extension = "PNG" ]
@@ -50,17 +65,25 @@ function read_dir() {
 				PNG_COUNT=$((PNG_COUNT+1))
                 local original_size=$(wc -c "${FULL_PATH}" | awk '{print $1}')
                 local original_size_str=$(tools_echo_file_size_string $original_size)
-                pngquant -f --ext .png --quality $COMPRESSION_QUALITY "$FULL_PATH" >/dev/null 2>&1
+                pngquant --quality $COMPRESSION_QUALITY --output $TEMP_OUTPUT_PATH "$FULL_PATH" >/dev/null 2>&1
                 local error_code=$?
                 if [[ $error_code -ne 0 ]]; then
                 	ERROR_COMPRESSION=$((ERROR_COMPRESSION+1))
                 	echo "ERROR!!: '$FULL_PATH', 错误码: $error_code, 错误信息: $(get_error_message $error_code)" >> "$OUTPUT_FILE"
                 else
 					SUCCESS_COMPRESSION=$((SUCCESS_COMPRESSION+1))
-					local new_size=$(wc -c "${FULL_PATH}" | awk '{print $1}')
+					local new_size=$(wc -c "${TEMP_OUTPUT_PATH}" | awk '{print $1}')
                 	local new_size_str=$(tools_echo_file_size_string $new_size)
-                	local compression_ratio=$(echo "$new_size $original_size" | awk '{printf ("%.2f",($2-$1)/$2*100)}')
-					echo "$FULL_PATH -- $original_size_str >>> $new_size_str  压缩率$compression_ratio%" >> "$OUTPUT_FILE"
+
+                	local resultPercent=$(echo "$(printf "%.2f" `echo "scale=3; (${original_size}-${new_size})/${original_size}*100" | bc -q`) > 1" | bc -q)
+                	if [[ $resultPercent -eq 1 ]]; then
+                		mv -f $TEMP_OUTPUT_PATH $FULL_PATH
+  						local compression_ratio=$(echo "$new_size $original_size" | awk '{printf ("%.2f",($2-$1)/$2*100)}')
+						echo "$FULL_PATH -- $original_size_str >>> $new_size_str  压缩率$compression_ratio%" >> "$OUTPUT_FILE"
+                	else  
+                		rm -f $TEMP_OUTPUT_PATH
+  						echo "$FULL_PATH -- $original_size_str >>> $original_size_str 无需压缩" >> "$OUTPUT_FILE"
+                	fi                	
                 fi
 			fi
 		fi
@@ -73,36 +96,42 @@ tools_check_brew_libs_and_install "pngquant" >/dev/null 2>&1
 
 
 LOG_FILE="$HOME/Desktop/png_compression_log-$(echo `date '+%Y-%m-%d %H-%M-%S'`).log"
-# touch "$LOGFILE"
-INPUT_DIRECTORY=""
+INPUT_DIRECTORY="$( cd "$( dirname "$0" )" && pwd )"
 COMPRESSION_QUALITY=100
+EXCLUDE_PATH_LIST_PARA=()
+EXCLUDE_PATH_DIR_LIST=()
+EXCLUDE_PATH_FILE_LIST=()
 
-while getopts ":i:q:l:h" opt; do
+
+while getopts ":i:q:e:l:h" opt; do
 	case $opt in
 		i )
-			temp_var="$OPTARG"
-			if [[ $temp_var =~ ^.. ]]; then
-				temp_var=${temp_var/\.\.\//`PWD`\/}
-			elif [[ $temp_var =~ ^. ]]; then
-				temp_var=${temp_var/\.\//`PWD`\/}
-			elif [[ $temp_var =~ ^~ ]];then
-				temp_var=${temp_var/\~\//$HOME\/}
+			pushd $OPTARG >/dev/null 2>&1
+			RES_CODE="$?"
+			if [[ $RES_CODE = 0 ]]; then
+				INPUT_DIRECTORY=`PWD`
+				popd >/dev/null 2>&1
+			else
+				echo "输入目录有误: $OPTARG"
+				exit $RES_CODE
 			fi
-			INPUT_DIRECTORY="$temp_var"
 			;;
 		q )
 			COMPRESSION_QUALITY=$OPTARG
 			;;
+		e )
+			EXCLUDE_PATH_LIST_PARA+=("$OPTARG")
+			;;
 		l )
-			temp_var="$OPTARG"
-			if [[ $temp_var =~ ^.. ]]; then
-				temp_var=${temp_var/\.\.\//`PWD`\/}
-			elif [[ $temp_var =~ ^. ]]; then
-				temp_var=${temp_var/\.\//`PWD`\/}
-			elif [[ $temp_var =~ ^~ ]];then
-				temp_var=${temp_var/\~\//$HOME\/}
+			pushd `dirname $OPTARG` >/dev/null 2>&1
+			RES_CODE="$?"
+			if [[ $RES_CODE = 0 ]]; then
+				LOG_FILE="`PWD`/${OPTARG##*/}"
+				popd >/dev/null 2>&1
+			else
+				echo "log路径有误有误: $OPTARG"
+				exit $RES_CODE
 			fi
-			LOG_FILE=$temp_var
 			;;
 		h )
 			echo "用法:"
@@ -112,6 +141,7 @@ while getopts ":i:q:l:h" opt; do
 			echo "参数:"
 			echo "    -i       图片所在路径"
 			echo "    -q       图片压缩的质量, 默认100(1-100)"
+			echo "    -e       需要排除的文件夹, 相对地址"
 			echo "    -l       日志输出文件, 可直观的查看压缩信息, 默认在 ~/Desktop/png_compression_log.log"
 			echo "    -h       帮助信息"
 			exit 0
@@ -122,11 +152,7 @@ while getopts ":i:q:l:h" opt; do
 	esac
 done
 
-if [[ $INPUT_DIRECTORY = "" ]]; then
-	echo "请输入图片所在路径"
-	exit 1
-fi
-
+ 
 open "$LOG_FILE" &
 
 echo "" >> "$LOG_FILE"
@@ -135,6 +161,17 @@ echo "" >> "$LOG_FILE"
 
 echo "开始压缩PNG图片: $(echo `date '+%Y-%m-%d %H:%M:%S'`)" >> "$LOG_FILE"
 echo "压缩路径: $INPUT_DIRECTORY" >> "$LOG_FILE"
+for value in ${EXCLUDE_PATH_LIST_PARA[@]}
+do 
+	TEMP_PATH="$INPUT_DIRECTORY/$value"
+	if [ -d "$TEMP_PATH" ]; then
+		echo "排除目录: $TEMP_PATH" >> "$LOG_FILE"
+		EXCLUDE_PATH_DIR_LIST+=("$TEMP_PATH")
+	else
+		echo "排除文件: $TEMP_PATH" >> "$LOG_FILE"
+		EXCLUDE_PATH_FILE_LIST+=("$TEMP_PATH")
+	fi
+done
 echo "日志路径: $LOGFILE" >> "$LOG_FILE"
 echo "压缩质量: $COMPRESSION_QUALITY" >> "$LOG_FILE"
 

@@ -95,6 +95,8 @@ if [[ ! -d "$ZSH" ]]; then
     git clone https://github.com/denysdovhan/spaceship-prompt.git "$ZSH_CUSTOM/themes/spaceship-prompt"
     ln -s "$ZSH_CUSTOM/themes/spaceship-prompt/spaceship.zsh-theme" "$ZSH_CUSTOM/themes/spaceship.zsh-theme"
     sudo cp "$_SHELL_FILE_PATH/zshrc-backup" "$HOME/.zshrc"
+    chmod 755 /usr/local/share/zsh
+    chmod 755 /usr/local/share/zsh/site-functions
     source "$HOME/.zshrc"
 fi
 echo -e "\033[36m >>>>>>>>>>>>>> ZSH 已安装 <<<<<<<<<<<<<< \033[0m"
@@ -161,7 +163,8 @@ brew services start mysql
 
 # qlimagesize 呗干掉了  需要自己编译
 QUICKLOOK_PACKAGE=(suspicious-package qlmarkdown quicklook-json quicklookase webpquicklook qlcolorcode qlstephen quicklook-pat qlvideo quicklookapk provisionql)
-CASK_WILL_INSTALLS=(iina switchhosts betterzip qq iina fork iterm2 sublime-text atom dash cleanmymac alfred bartender filezilla google-chrome istat-menus youdaonote youdaodict shadowsocksx-ng cheatsheet postman wireshark baidunetdisk vmware-fusion kaleidoscope coconutbattery near-lock omnigraffle jetbrains-toolbox android-studio virtualbox qsync-client qfinder-pro thunder)
+#numi 是一个计算器 很方便
+CASK_WILL_INSTALLS=(iina numi switchhosts betterzip qq iina fork iterm2 sublime-text atom dash cleanmymac alfred bartender filezilla google-chrome istat-menus youdaonote youdaodict shadowsocksx-ng cheatsheet postman wireshark baidunetdisk vmware-fusion kaleidoscope coconutbattery near-lock omnigraffle jetbrains-toolbox android-studio virtualbox qsync-client qfinder-pro thunder)
 CASK_FRAMEWORKS=(java docker)
 BREW_CASK_IS_INSTALLED=$(brew cask list)
 

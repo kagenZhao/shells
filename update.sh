@@ -95,7 +95,7 @@ if [[ $(which brew) ]]; then
   brew upgrade
   echo -e "\033[36m>>>>>>>>>>>>>> brew cask upgrading <<<<<<<<<<<<<<\033[0m"
   # brew cask upgrade --greedy
-  brew cask upgrade
+  brew upgrade --cask
   # brew cask cleanup
   brew cleanup
 fi
