@@ -24,6 +24,14 @@ function get_error_message() {
 	esac
 }
 
+function echoLog() {
+	if [ $2 ]; then
+		echo $1 >> $2
+	else
+		echo $1 >&2 
+	fi
+}
+
 function read_dir() {
 	local OLDIFS=$IFS
 	IFS=$(echo -en "\n\b")
@@ -69,7 +77,7 @@ function read_dir() {
                 local error_code=$?
                 if [[ $error_code -ne 0 ]]; then
                 	ERROR_COMPRESSION=$((ERROR_COMPRESSION+1))
-                	echo "ERROR!!: '$FULL_PATH', 错误码: $error_code, 错误信息: $(get_error_message $error_code)" >> "$OUTPUT_FILE"
+                	echoLog "ERROR!!: '$FULL_PATH', 错误码: $error_code, 错误信息: $(get_error_message $error_code)" "$OUTPUT_FILE"
                 else
 					SUCCESS_COMPRESSION=$((SUCCESS_COMPRESSION+1))
 					local new_size=$(wc -c "${TEMP_OUTPUT_PATH}" | awk '{print $1}')
@@ -79,10 +87,10 @@ function read_dir() {
                 	if [[ $resultPercent -eq 1 ]]; then
                 		mv -f $TEMP_OUTPUT_PATH $FULL_PATH
   						local compression_ratio=$(echo "$new_size $original_size" | awk '{printf ("%.2f",($2-$1)/$2*100)}')
-						echo "$FULL_PATH -- $original_size_str >>> $new_size_str  压缩率$compression_ratio%" >> "$OUTPUT_FILE"
+						echoLog "$FULL_PATH -- $original_size_str >>> $new_size_str  压缩率$compression_ratio%" "$OUTPUT_FILE"
                 	else  
                 		rm -f $TEMP_OUTPUT_PATH
-  						echo "$FULL_PATH -- $original_size_str >>> $original_size_str 无需压缩" >> "$OUTPUT_FILE"
+  						echoLog "$FULL_PATH -- $original_size_str >>> $original_size_str 无需压缩" "$OUTPUT_FILE"
                 	fi                	
                 fi
 			fi
@@ -95,13 +103,13 @@ function read_dir() {
 tools_check_brew_libs_and_install "pngquant" >/dev/null 2>&1
 
 
-LOG_FILE="$HOME/Desktop/png_compression_log-$(echo `date '+%Y-%m-%d %H-%M-%S'`).log"
+# LOG_FILE="$HOME/Desktop/png_compression_log-$(echo `date '+%Y-%m-%d %H-%M-%S'`).log"
+LOG_FILE=
 INPUT_DIRECTORY="$( cd "$( dirname "$0" )" && pwd )"
 COMPRESSION_QUALITY=100
 EXCLUDE_PATH_LIST_PARA=()
 EXCLUDE_PATH_DIR_LIST=()
 EXCLUDE_PATH_FILE_LIST=()
-
 
 while getopts ":i:q:e:l:h" opt; do
 	case $opt in
@@ -152,30 +160,30 @@ while getopts ":i:q:e:l:h" opt; do
 	esac
 done
 
+if [ ${LOG_FILE} ]; then
+	open "$LOG_FILE" &
+fi
  
-open "$LOG_FILE" &
-
-echo "" >> "$LOG_FILE"
-echo "" >> "$LOG_FILE"
-echo "" >> "$LOG_FILE"
-
-echo "开始压缩PNG图片: $(echo `date '+%Y-%m-%d %H:%M:%S'`)" >> "$LOG_FILE"
-echo "压缩路径: $INPUT_DIRECTORY" >> "$LOG_FILE"
+echoLog "开始压缩PNG图片: $(echo `date '+%Y-%m-%d %H:%M:%S'`)"  "$LOG_FILE"
+echoLog "压缩路径: $INPUT_DIRECTORY" "$LOG_FILE"
 for value in ${EXCLUDE_PATH_LIST_PARA[@]}
 do 
 	TEMP_PATH="$INPUT_DIRECTORY/$value"
 	if [ -d "$TEMP_PATH" ]; then
-		echo "排除目录: $TEMP_PATH" >> "$LOG_FILE"
+		echoLog "排除目录: $TEMP_PATH" "$LOG_FILE"
 		EXCLUDE_PATH_DIR_LIST+=("$TEMP_PATH")
 	else
-		echo "排除文件: $TEMP_PATH" >> "$LOG_FILE"
+		echoLog "排除文件: $TEMP_PATH" "$LOG_FILE"
 		EXCLUDE_PATH_FILE_LIST+=("$TEMP_PATH")
 	fi
 done
-echo "日志路径: $LOGFILE" >> "$LOG_FILE"
-echo "压缩质量: $COMPRESSION_QUALITY" >> "$LOG_FILE"
+if [ ${LOG_FILE} ]; then
+	echoLog "日志路径: $LOG_FILE" "$LOG_FILE"
+fi
+
+echoLog "压缩质量: $COMPRESSION_QUALITY" "$LOG_FILE"
 
 compression_result=$(read_dir "$INPUT_DIRECTORY" "$LOG_FILE" $COMPRESSION_QUALITY)
 
-echo "压缩PNG图片完毕: $(echo `date '+%Y-%m-%d %H:%M:%S'`), 图片数量:$(echo $compression_result | cut -d '|' -f 1), 成功:$(echo $compression_result | cut -d '|' -f 2), 失败:$(echo $compression_result | cut -d '|' -f 3)" >> "$LOG_FILE"
+echoLog "压缩PNG图片完毕: $(echo `date '+%Y-%m-%d %H:%M:%S'`), 图片数量:$(echo $compression_result | cut -d '|' -f 1), 成功:$(echo $compression_result | cut -d '|' -f 2), 失败:$(echo $compression_result | cut -d '|' -f 3)" "$LOG_FILE"
 
