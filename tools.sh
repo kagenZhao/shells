@@ -68,7 +68,7 @@ tools_check_brew_cask_libs_and_install() {
     for value in ${_will_install_apps[@]}
     do
         if [[ ! $(tools_array_contains ${value} ${_brew_cask_installed_list}) ]]; then
-            brew cask install ${value}
+            brew install ${value} --cask
         fi
     done
 }
