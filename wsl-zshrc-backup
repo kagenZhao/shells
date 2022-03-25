@@ -1,0 +1,98 @@
+export ZSH="$HOME/.oh-my-zsh"
+export ZSH_CUSTOM=$ZSH/custom
+
+export JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8"
+
+export COLORTERM=truecolor
+
+ZSH_THEME="spaceship" 
+# spaceship 主题的设置
+SPACESHIP_PROMPT_ADD_NEWLINE=true
+SPACESHIP_TIME_SHOW=true
+SPACESHIP_EXIT_CODE_SHOW=true
+SPACESHIP_SWIFT_SHOW_GLOBAL=true
+SPACESHIP_GIT_STATUS_SHOW=false
+
+
+HIST_STAMPS="mm/dd/yyyy"
+
+plugins=(
+    git
+    wd
+    sudo
+    cp
+    z
+)
+
+source $ZSH/oh-my-zsh.sh
+
+# zsh配置语法高亮
+source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+# zsh自动补全建议
+source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+eval "$(mcfly init zsh)"
+
+
+if [[ "$(umask)"=='000' ]]; then
+    umask 022
+fi
+
+export LANG=en_US.UTF-8
+
+alias vs="/mnt/d/Program\ Files/Microsoft\ VS\ Code/Code.exe"
+
+
+
+HOST_IP=$(cat /etc/resolv.conf |grep -oP '(?<=nameserver\ ).*')
+WSL_IP=$(hostname -I | awk '{print $1}')
+PROXY_PORT=7890
+PROXY_HTTP="http://${HOST_IP}:${PROXY_PORT}"
+PROXY_SOCKS5="socket5://${HOST_IP}:${PROXY_PORT}"
+
+openproxy() {
+    export http_proxy="${PROXY_HTTP}"
+    export HTTP_PROXY="${PROXY_HTTP}"
+ 
+    export https_proxy="${PROXY_HTTP}"
+    export HTTPS_proxy="${PROXY_HTTP}"
+ 
+    export ALL_PROXY="${PROXY_SOCKS5}"
+    export all_proxy="${PROXY_SOCKS5}"
+
+    # git http
+    git config --global http.proxy "$LOCAL_HTTP_PROXY";
+    git config --global https.proxy "$LOCAL_HTTP_PROXY";
+
+    # ubuntu apt
+    echo -e "Acquire::http::Proxy \"$LOCAL_HTTP_PROXY\";" | sudo tee -a /etc/apt/apt.conf.d/proxy.conf > /dev/null;
+    echo -e "Acquire::https::Proxy \"$LOCAL_HTTP_PROXY\";" | sudo tee -a /etc/apt/apt.conf.d/proxy.conf > /dev/null;
+    
+    # git ssh proxy
+    sed -i "s/# ProxyCommand/ProxyCommand/" ~/.ssh/config
+    sed -i -E "s/ProxyCommand nc -X connect -x [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+:[0-9]+ %h %p/ProxyCommand nc -X connect -x ${HOST_IP}:${PROXY_PORT} %h %p/" ~/.ssh/config
+
+}
+
+closeproxy() {
+    unset http_proxy
+    unset HTTP_PROXY
+    unset https_proxy
+    unset HTTPS_PROXY
+    unset ALL_PROXY
+    unset all_proxy
+ 
+    # git http
+    git config --global --unset http.proxy;
+    git config --global --unset https.proxy;
+
+    # ubuntu apt
+    sudo sed -i -e '/Acquire::http::Proxy/d' /etc/apt/apt.conf.d/proxy.conf;
+    sudo sed -i -e '/Acquire::https::Proxy/d' /etc/apt/apt.conf.d/proxy.conf;
+    
+    # git ssh proxy
+    sed -i -E "s/ProxyCommand nc -X connect -x [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+:[0-9]+ %h %p/# ProxyCommand nc -X connect -x 0.0.0.0:0 %h %p/" ~/.ssh/config
+}
+
+openproxy;
