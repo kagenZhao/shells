@@ -5,6 +5,8 @@ export JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8"
 
 export COLORTERM=truecolor
 
+# git clone https://github.com/denysdovhan/spaceship-prompt.git "$ZSH_CUSTOM/themes/spaceship-prompt"
+# ln -s "$ZSH_CUSTOM/themes/spaceship-prompt/spaceship.zsh-theme" "$ZSH_CUSTOM/themes/spaceship.zsh-theme"
 ZSH_THEME="spaceship" 
 # spaceship 主题的设置
 SPACESHIP_PROMPT_ADD_NEWLINE=true
@@ -34,15 +36,13 @@ source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 
 eval "$(mcfly init zsh)"
 
-
 if [[ "$(umask)"=='000' ]]; then
     umask 022
 fi
 
 export LANG=en_US.UTF-8
 
-alias vs="/mnt/d/Program\ Files/Microsoft\ VS\ Code/Code.exe"
-
+alias git="git.exe"
 
 
 HOST_IP=$(cat /etc/resolv.conf |grep -oP '(?<=nameserver\ ).*')
@@ -62,12 +62,12 @@ openproxy() {
     export all_proxy="${PROXY_SOCKS5}"
 
     # git http
-    git config --global http.proxy "$LOCAL_HTTP_PROXY";
-    git config --global https.proxy "$LOCAL_HTTP_PROXY";
+    git config --global http.proxy "$PROXY_HTTP";
+    git config --global https.proxy "$PROXY_HTTP";
 
     # ubuntu apt
-    echo -e "Acquire::http::Proxy \"$LOCAL_HTTP_PROXY\";" | sudo tee -a /etc/apt/apt.conf.d/proxy.conf > /dev/null;
-    echo -e "Acquire::https::Proxy \"$LOCAL_HTTP_PROXY\";" | sudo tee -a /etc/apt/apt.conf.d/proxy.conf > /dev/null;
+    echo -e "Acquire::http::Proxy \"$PROXY_HTTP\";" | sudo tee -a /etc/apt/apt.conf.d/proxy.conf > /dev/null;
+    echo -e "Acquire::https::Proxy \"$PROXY_HTTP\";" | sudo tee -a /etc/apt/apt.conf.d/proxy.conf > /dev/null;
     
     # git ssh proxy
     sed -i "s/# ProxyCommand/ProxyCommand/" ~/.ssh/config
