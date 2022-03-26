@@ -4,20 +4,6 @@
 
 ;设置规则标志位
 
-ruleset=🎯 全球直连,clash-classic:https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/applications.txt,86400
-ruleset=🎯 全球直连,clash-domain:https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/private.txt,86400
-ruleset=🎯 全球直连,clash-domain:https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/reject.txt,86400
-ruleset=🎯 全球直连,clash-domain:https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/icloud.txt,86400
-ruleset=🎯 全球直连,clash-domain:https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/apple.txt,86400
-ruleset=🎯 全球直连,clash-domain:https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/google.txt,86400
-ruleset=🎯 全球直连,clash-domain:https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/proxy.txt,86400
-ruleset=🎯 全球直连,clash-domain:https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/direct.txt,86400
-ruleset=🎯 全球直连,clash-ipcidr:https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/lancidr.txtt,86400
-ruleset=🎯 全球直连,clash-ipcidr:https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/cncidr.txt,86400
-ruleset=🎯 全球直连,clash-domain:https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/gfw.txt,86400
-ruleset=🎯 全球直连,clash-ipcidr:https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/telegramcidr.txt,86400
-ruleset=🎯 全球直连,clash-domain:https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/tld-not-cn,86400
-ruleset=🎯 全球直连,clash-domain:https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/greatfire.txt,86400
 ruleset=🐟 漏网之鱼,[]FINAL
 ;设置规则标志位
 
